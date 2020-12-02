@@ -20,11 +20,13 @@ class BottomNavyBar extends StatelessWidget {
   final double shadowOffsetX;
   final double shadowOffsetY;
   final double inactiveOpacity;
+  final double activeOpacity;
   final double verticalPadding;
   final double horizontalPadding;
   final double verticalItemPadding;
   final double horizontalItemPadding;
   final Curve curve;
+  final TextDirection textDirection;
 
   BottomNavyBar({
     Key key,
@@ -40,10 +42,12 @@ class BottomNavyBar extends StatelessWidget {
     this.shadowOffsetX = 0,
     this.shadowOffsetY = 0,
     this.inactiveOpacity = 1.0,
+    this.activeOpacity = 0.2,
     this.verticalPadding = 6,
     this.horizontalPadding = 8,
     this.verticalItemPadding = 10,
     this.horizontalItemPadding = 4,
+    this.textDirection,
     this.animationDuration = const Duration(milliseconds: 270),
     this.mainAxisAlignment = MainAxisAlignment.spaceBetween,
     @required this.items,
@@ -100,8 +104,10 @@ class BottomNavyBar extends StatelessWidget {
                   animationDuration: animationDuration,
                   curve: curve,
                   inactiveOpacity: inactiveOpacity,
+                  activeOpacity: activeOpacity,
                   verticalItemPadding: verticalItemPadding,
                   horizontalItemPadding: horizontalItemPadding,
+                  textDirection: textDirection ?? TextDirection.ltr,
                 ),
               );
             }).toList(),
@@ -121,8 +127,10 @@ class _ItemWidget extends StatelessWidget {
   final Duration animationDuration;
   final Curve curve;
   final double inactiveOpacity;
+  final double activeOpacity;
   final double verticalItemPadding;
   final double horizontalItemPadding;
+  final TextDirection textDirection;
 
   const _ItemWidget({
     Key key,
@@ -133,8 +141,10 @@ class _ItemWidget extends StatelessWidget {
     @required this.itemCornerRadius,
     @required this.iconSize,
     @required this.inactiveOpacity,
+    @required this.activeOpacity,
     @required this.verticalItemPadding,
     @required this.horizontalItemPadding,
+    @required this.textDirection,
     this.curve = Curves.linear,
   })  : assert(isSelected != null),
         assert(item != null),
@@ -144,6 +154,8 @@ class _ItemWidget extends StatelessWidget {
         assert(iconSize != null),
         assert(curve != null),
         assert(inactiveOpacity != null),
+        assert(activeOpacity != null),
+        assert(textDirection != null),
         super(key: key);
 
   @override
@@ -158,7 +170,7 @@ class _ItemWidget extends StatelessWidget {
         curve: curve,
         decoration: BoxDecoration(
           color:
-              isSelected ? item.activeColor.withOpacity(0.1) : backgroundColor,
+              isSelected ? item.activeColor.withOpacity(activeOpacity) : backgroundColor,
           borderRadius: BorderRadius.circular(itemCornerRadius),
         ),
         child: SingleChildScrollView(
@@ -171,9 +183,10 @@ class _ItemWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
+              textDirection: textDirection,
               children: <Widget>[
                 Container(
-                  child: FittedBox(
+                  child: Container(
                     child: Opacity(
                       opacity: isSelected ? 1.0 : inactiveOpacity,
                       child: item.icon,
@@ -186,10 +199,10 @@ class _ItemWidget extends StatelessWidget {
                       padding: EdgeInsets.symmetric(
                           vertical: verticalItemPadding,
                           horizontal: horizontalItemPadding),
-                      child: FittedBox(
+                      child: Container(
                         child: DefaultTextStyle.merge(
                           style: TextStyle(
-                            color: item.activeColor,
+                            color: item.activeTextColor ?? item.activeColor,
                             fontWeight: FontWeight.bold,
                           ),
                           maxLines: 1,
@@ -215,6 +228,7 @@ class BottomNavyBarItem {
   final Widget icon;
   final Widget title;
   final Color activeColor;
+  final Color activeTextColor;
   final Color inactiveColor;
   final TextAlign textAlign;
 
@@ -222,6 +236,7 @@ class BottomNavyBarItem {
     @required this.icon,
     @required this.title,
     this.activeColor = Colors.blue,
+    this.activeTextColor = Colors.blue,
     this.textAlign,
     this.inactiveColor,
   }) {
